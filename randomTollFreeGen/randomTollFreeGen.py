@@ -1,11 +1,7 @@
 import boto3
-import json
 import random
 import os
 import time
-from botocore.exceptions import ClientError
-from base64 import b64decode
-from boto3.dynamodb.conditions import Key, Attr
 import logging
 
 # TODO: get region dynamically

@@ -1,9 +1,5 @@
 [
   {
-    "ParameterKey": "CodeBucket",
-    "ParameterValue": "sma-code-dev"
-  },
-  {
     "ParameterKey": "S3Key",
     "ParameterValue": "randomTollFreeGen.zip"
   },

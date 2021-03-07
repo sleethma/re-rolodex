@@ -1,0 +1,7 @@
+# Binaries #
+############
+*.zip
+
+# OS generated files #
+######################
+.DS_Store

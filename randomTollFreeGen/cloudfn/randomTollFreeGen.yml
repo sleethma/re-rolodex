@@ -2,8 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "Creates lambda for calculating best random number and writing to database"
 # TODO: Take in code zip as var, split policies for least privilage
 Parameters:
-  CodeBucket:
-    Type: String
   S3Key:
     Type: String
   Timeout:
@@ -30,7 +28,7 @@ Resources:
       Role: !GetAtt RandomTollFreeGenRole.Arn
       Code:
         S3Bucket:
-          Ref: CodeBucket
+          Fn::ImportValue: !Sub "CodeBucketName-${AWS::AccountId}"
         S3Key:
           Ref: S3Key
       Runtime: "python3.8"
@@ -88,13 +86,3 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: ttl
         Enabled: true
-
-Outputs:
-  RandomTollFreeGenLambda:
-    Value: !Ref RandomTollFreeGenLambda
-    Export:
-      Name: !Sub "${AWS::StackName}-LambdaFunction"
-  RolodexDynamo:
-    Value: !Ref RolodexDynamo
-    Export:
-      Name: !Sub "${AWS::StackName}-DynamoDB"

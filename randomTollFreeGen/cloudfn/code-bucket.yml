@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Creates lambda for calculating best random number and writing to database"
+# TODO: Take in code zip as var, split policies for least privilage
+Parameters:
+  CodeBucket:
+    Type: String
+
+Resources:
+  CodeDeployBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref CodeBucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+Outputs:
+  DeployCodeBucket:
+    Description: Deploy bucket for cloudformation uploading of Rolodex Project
+    Value: !Ref CodeBucket
+    Export:
+      Name: !Sub "CodeBucketName-${AWS::AccountId}"
