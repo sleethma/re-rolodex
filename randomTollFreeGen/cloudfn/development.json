@@ -1,0 +1,38 @@
+[
+  {
+    "ParameterKey": "CodeBucket",
+    "ParameterValue": "sma-code-dev"
+  },
+  {
+    "ParameterKey": "S3Key",
+    "ParameterValue": "randomTollFreeGen.zip"
+  },
+  {
+    "ParameterKey": "HandlerName",
+    "ParameterValue": "randomTollFreeGen.lambda_handler"
+  },
+  {
+    "ParameterKey": "Timeout",
+    "ParameterValue": "45"
+  },
+  {
+    "ParameterKey": "TableName",
+    "ParameterValue": "rolodex"
+  },
+  {
+    "ParameterKey": "ReadCapacityUnits",
+    "ParameterValue": "10"
+  },
+  {
+    "ParameterKey": "WriteCapacityUnits",
+    "ParameterValue": "10"
+  },
+  {
+    "ParameterKey": "HashKeyElementName",
+    "ParameterValue": "vanity_number"
+  },
+  {
+    "ParameterKey": "HashKeyElementType",
+    "ParameterValue": "S"
+  }
+]
