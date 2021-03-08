@@ -1,0 +1,38 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /randomTollFreeGen",
+  "rawPath": "/dev/randomTollFreeGen",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate, br",
+    "cache-control": "no-cache",
+    "content-length": "0",
+    "host": "qj9t8i1s7c.execute-api.us-east-1.amazonaws.com",
+    "postman-token": "e0fb052e-5e65-4b66-9de0-3a8217a22467",
+    "user-agent": "PostmanRuntime/7.26.10",
+    "x-amzn-trace-id": "Root=1-60455414-6215e9851fff6aa85901494a",
+    "x-forwarded-for": "71.130.59.196",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+    "accountId": "500573939214",
+    "apiId": "qj9t8i1s7c",
+    "domainName": "qj9t8i1s7c.execute-api.us-east-1.amazonaws.com",
+    "domainPrefix": "qj9t8i1s7c",
+    "http": {
+      "method": "GET",
+      "path": "/dev/randomTollFreeGen",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "71.130.59.196",
+      "userAgent": "PostmanRuntime/7.26.10"
+    },
+    "requestId": "b1oTJiKpIAMEPGQ=",
+    "routeKey": "GET /randomTollFreeGen",
+    "stage": "dev",
+    "time": "07/Mar/2021:22:30:44 +0000",
+    "timeEpoch": 1615156244029
+  },
+  "isBase64Encoded": false
+}
