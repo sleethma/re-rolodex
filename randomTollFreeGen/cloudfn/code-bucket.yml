@@ -21,4 +21,4 @@ Outputs:
     Description: Deploy bucket for cloudformation uploading of Rolodex Project
     Value: !Ref CodeBucket
     Export:
-      Name: !Sub "CodeBucketName-${AWS::AccountId}"
+      Name: !Sub "${AWS::StackName}-CodeBucketName"

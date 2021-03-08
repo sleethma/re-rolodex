@@ -4,10 +4,6 @@
     "ParameterValue": "randomTollFreeGen.zip"
   },
   {
-    "ParameterKey": "HandlerName",
-    "ParameterValue": "randomTollFreeGen.lambda_handler"
-  },
-  {
     "ParameterKey": "Timeout",
     "ParameterValue": "45"
   },

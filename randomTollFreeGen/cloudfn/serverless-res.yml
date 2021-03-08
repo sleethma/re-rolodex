@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Creates lambda for calculating best random number and writing to database"
+# TODO: Take in code zip as var, split policies for least privilage
+Parameters:
+  S3Key:
+    Type: String
+  Timeout:
+    Type: String
+  TableName:
+    Type: String
+  ReadCapacityUnits:
+    Type: Number
+  WriteCapacityUnits:
+    Type: Number
+  HashKeyElementName:
+    Type: String
+  HashKeyElementType:
+    Type: String
+  CodeBucketStackName:
+    Type: String
+    Default: "code-bucket-rolodex"
+  ApiGatewayName:
+    Type: String
+    Default: RolodexApi
+  ApiGatewayStageName:
+    Type: String
+    Default: dev
+  ApiGatewayHTTPMethod:
+    Type: String
+    Default: GET
+
+Resources:
+  RandomTollFreeGenLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: "randomTollFreeGen"
+      Handler: "randomTollFreeGen.lambda_handler"
+      Role: !GetAtt RandomTollFreeGenRole.Arn
+      Code:
+        S3Bucket:
+          Fn::ImportValue: !Sub "${CodeBucketStackName}-CodeBucketName"
+        S3Key:
+          Ref: S3Key
+      Runtime: "python3.8"
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+          REGION: ${AWS::Region}
+      Timeout: !Ref Timeout
+      MemorySize: "128"
+
+  RandomTollFreeGenRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: RandomTollFreeGenRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RandomTollFreeGenPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${RolodexServerLambdaName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${RandomTollFreeGenLambdaName}:*
+
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:DescribeTable
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/rolodex"
+
+  RolodexServerLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RolodexServerLambda}
+      RetentionInDays: 90
+
+  RandomTollFreeGenLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RandomTollFreeGenLambdaName}
+      RetentionInDays: 90
+
+  LambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt RolodexServerLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/${ApiGatewayStageName}/${ApiGatewayHTTPMethod}/
+
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: Gateway to retrieve latest rolodex numbers
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: !Ref ApiGatewayName
+
+  ApiGatewayRootMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      # TODO: add authtype
+      AuthorizationType: NONE
+      HttpMethod: !Ref ApiGatewayHTTPMethod
+      Integration:
+        IntegrationHttpMethod: GET
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - LambdaArn: !GetAtt RolodexServerLambda.Arn
+      ResourceId: !GetAtt ApiGateway.RootResourceId
+      RestApiId: !Ref ApiGateway
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiGatewayRootMethod
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: !Ref ApiGatewayStageName
+
+  RolodexServerLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: "rolodexServer"
+      Handler: "rolodexServer.lambda_handler"
+      Role: !GetAtt RandomTollFreeGenRole.Arn
+      Code:
+        S3Bucket:
+          Fn::ImportValue: !Sub "${CodeBucketStackName}-CodeBucketName"
+        S3Key: "rolodexServer.zip"
+      Runtime: "python3.8"
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+          REGION: ${AWS::Region}
+      Timeout: !Ref Timeout
+      MemorySize: "128"
+
+  RolodexDynamo:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: !Ref "HashKeyElementName"
+          AttributeType: !Ref "HashKeyElementType"
+      KeySchema:
+        - AttributeName: !Ref "HashKeyElementName"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref "ReadCapacityUnits"
+        WriteCapacityUnits: !Ref "WriteCapacityUnits"
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+Outputs:
+  ApiGatewayInvokeURL:
+    Value: !Sub https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${apiGatewayStageName}
+
+  LambdaArn:
+    Value: !GetAtt RolodexServerLambda.Arn
+  RolodexServerLambdaName:
+    Value: !GetAtt RolodexServerLambda.Name
+  RandomTollFreeGenLambdaName:
+    Value: !GetAtt RandomTollFreeGenLambda.Name
+# TODO: dm - https://bl.ocks.org/magnetikonline/c314952045eee8e8375b82bc7ec68e88
