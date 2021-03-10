@@ -13,18 +13,22 @@
   },
   {
     "ParameterKey": "ReadCapacityUnits",
-    "ParameterValue": "10"
+    "ParameterValue": "5"
   },
   {
     "ParameterKey": "WriteCapacityUnits",
-    "ParameterValue": "10"
+    "ParameterValue": "5"
   },
   {
     "ParameterKey": "HashKeyElementName",
-    "ParameterValue": "vanity_number"
+    "ParameterValue": "uuid"
   },
   {
     "ParameterKey": "HashKeyElementType",
     "ParameterValue": "S"
+  },
+  {
+    "ParameterKey": "StackRegion",
+    "ParameterValue": "us-east-1"
   }
 ]

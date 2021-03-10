@@ -3,6 +3,7 @@ import random
 import os
 import time
 import logging
+import uuid
 
 # TODO: get region dynamically
 dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
@@ -99,22 +100,22 @@ def handle_ani(custNum):
     # TODO:   (enhancement for "Best": weighted with most consecutive numbers )
     bestNums = get_best(custNum[2:])
     writeNums = bestNums[:5]
-    deleteBySec = 172800
-    # TODO: write 5 vanity Numbs to dynamo
 
     try:
         print("writing to db ", writeNums)
         currentTimeMs = int(time.time())
+        uuid_id = uuid.uuid1()
         for i in range(len(writeNums)):
             print("vanity_number: {}".format(writeNums[i]["phNum"]))
             print("score: {}".format(writeNums[i]["score"]))
-            print("ttl: {}".format(currentTimeMs))
             table.put_item(
                 Item={
+                    "uuid": str(uuid_id),
                     "vanity_number": writeNums[i]["phNum"],
                     "score": writeNums[i]["score"],
-                    "ttl": int(time.time()) + deleteBySec,
+                    "callers_num": custNum[1:],
                     "timestamp": currentTimeMs,
+                    "partition": "partition_0",
                 }
             )
     except Exception as e:

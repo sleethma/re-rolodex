@@ -1,11 +1,9 @@
 import boto3
-import json
 import os
 import time
 import logging
 
-# TODO: get region dynamically
-dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+dynamodb = boto3.resource("dynamodb", region_name=os.environ["REGION"])
 
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
@@ -13,7 +11,7 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 
 def lambda_handler(event, context):
-    print("input event{}".format(event.json()))
+    print("input event: {}".format(event))
     return {
         "body": "Hello there {0}".format(
             event["requestContext"]["identity"]["sourceIp"]

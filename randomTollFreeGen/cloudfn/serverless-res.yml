@@ -28,6 +28,9 @@ Parameters:
   ApiGatewayHTTPMethod:
     Type: String
     Default: GET
+  StackRegion:
+    Type: String
+    Default: "us-east-1"
 
 Resources:
   RandomTollFreeGenLambda:
@@ -45,7 +48,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
-          REGION: ${AWS::Region}
+          REGION: !Ref "AWS::Region"
       Timeout: !Ref Timeout
       MemorySize: "128"
 
@@ -73,8 +76,8 @@ Resources:
                   - logs:PutLogEvents
                 Effect: Allow
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${RolodexServerLambdaName}:*
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${RandomTollFreeGenLambdaName}:*
+                  - !Sub arn:aws:logs:${StackRegion}:${AWS::AccountId}:log-group:/aws/lambda/${RolodexServerLambdaName}:*
+                  - !Sub arn:aws:logs:${StackRegion}:${AWS::AccountId}:log-group:/aws/lambda/${RandomTollFreeGenLambdaName}:*
 
                 Resource: "*"
               - Effect: Allow
@@ -83,7 +86,7 @@ Resources:
                   - dynamodb:BatchWriteItem
                   - dynamodb:PutItem
                   - dynamodb:GetItem
-                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/rolodex"
+                Resource: !Sub "arn:aws:dynamodb:${StackRegion}:${AWS::AccountId}:table/rolodex"
 
   RolodexServerLambdaLogGroup:
     Type: AWS::Logs::LogGroup
@@ -94,7 +97,7 @@ Resources:
   RandomTollFreeGenLambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${RandomTollFreeGenLambdaName}
+      LogGroupName: !Sub /aws/lambda/${RandomTollFreeGenLambda}
       RetentionInDays: 90
 
   LambdaApiGatewayInvoke:
@@ -103,7 +106,30 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt RolodexServerLambda.Arn
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/${ApiGatewayStageName}/${ApiGatewayHTTPMethod}/
+      SourceArn: !Sub arn:aws:execute-api:${StackRegion}:${AWS::AccountId}:${ApiGateway}/${ApiGatewayStageName}/${ApiGatewayHTTPMethod}/${RolodexServerLambda}
+
+  ApiGatewayIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: ''
+            Effect: 'Allow'
+            Principal:
+              Service:
+                - 'apigateway.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+        - PolicyName: LambdaAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action: 'lambda:*'
+                Resource: !GetAtt RolodexServerLambda.Arn
 
   ApiGateway:
     Type: AWS::ApiGateway::RestApi
@@ -114,25 +140,37 @@ Resources:
           - REGIONAL
       Name: !Ref ApiGatewayName
 
-  ApiGatewayRootMethod:
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: !Ref RolodexServerLambda
+      RestApiId: !Ref ApiGateway
+
+  ApiGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      # TODO: add authtype
+      ApiKeyRequired: false
       AuthorizationType: NONE
       HttpMethod: !Ref ApiGatewayHTTPMethod
       Integration:
-        IntegrationHttpMethod: GET
+        # needed?
+        ConnectionType: INTERNET
+        Credentials: !GetAtt ApiGatewayIamRole.Arn
+        IntegrationHttpMethod: POST
+        PassthroughBehavior: WHEN_NO_MATCH
+        TimeoutInMillis: 29000
         Type: AWS_PROXY
-        Uri: !Sub
-          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-          - LambdaArn: !GetAtt RolodexServerLambda.Arn
-      ResourceId: !GetAtt ApiGateway.RootResourceId
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RolodexServerLambda.Arn}/invocations'
+      # opname needed?
+      OperationName: 'lambda'
+      ResourceId: !Ref ApiGatewayResource
       RestApiId: !Ref ApiGateway
 
   ApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
-      - ApiGatewayRootMethod
+      - ApiGatewayMethod
     Properties:
       RestApiId: !Ref ApiGateway
       StageName: !Ref ApiGatewayStageName
@@ -151,7 +189,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
-          REGION: ${AWS::Region}
+          REGION: !Ref "AWS::Region"
       Timeout: !Ref Timeout
       MemorySize: "128"
 
@@ -162,24 +200,40 @@ Resources:
       AttributeDefinitions:
         - AttributeName: !Ref "HashKeyElementName"
           AttributeType: !Ref "HashKeyElementType"
+        - AttributeName: "partition"
+          AttributeType: S
+        - AttributeName: "timestamp"
+          AttributeType: "N"
       KeySchema:
         - AttributeName: !Ref "HashKeyElementName"
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref "ReadCapacityUnits"
         WriteCapacityUnits: !Ref "WriteCapacityUnits"
-      TimeToLiveSpecification:
-        AttributeName: ttl
-        Enabled: true
+      GlobalSecondaryIndexes:
+      - IndexName: rolodex-time-index
+        KeySchema:
+        - AttributeName: "partition"
+          KeyType: HASH
+        - AttributeName: "timestamp"
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: !Ref "ReadCapacityUnits"
+          WriteCapacityUnits: !Ref "WriteCapacityUnits"
+
 
 Outputs:
+  StackRegion:
+    Value: !Ref "AWS::Region"
   ApiGatewayInvokeURL:
-    Value: !Sub https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${apiGatewayStageName}
-
+    Value: !Sub https://${ApiGateway}.execute-api.${StackRegion}.amazonaws.com/${ApiGatewayStageName}
   LambdaArn:
     Value: !GetAtt RolodexServerLambda.Arn
-  RolodexServerLambdaName:
-    Value: !GetAtt RolodexServerLambda.Name
-  RandomTollFreeGenLambdaName:
-    Value: !GetAtt RandomTollFreeGenLambda.Name
+  RolodexServerLambda:
+    Value: !Ref RolodexServerLambda
+  RandomTollFreeGenLambda:
+    Value: !Ref RandomTollFreeGenLambda
+
 # TODO: dm - https://bl.ocks.org/magnetikonline/c314952045eee8e8375b82bc7ec68e88
