@@ -55,7 +55,7 @@ def get_best(vanity_nums):
         # map each to get score
         uniqueNumObj = {}
         for j, k in enumerate(uniqueNumber):
-            # NOTE: Seed uses the shuffled number index/number at index
+            # NOTE: Seed uses the shuffled number index/number at new shuffled index
             # TODO: Play with seed to see if better range of scores acheivable
             random.seed(int(k / (j + 1) * 10))
             genVal = random.randint(0, 9)
@@ -74,13 +74,13 @@ def get_best(vanity_nums):
         scoredNums.append(scoredNum)
 
     scoredNums.sort(key=lambda x: x["score"], reverse=True)
-    print("top 5 ", scoredNums[:5])
+    # print("top 5 ", scoredNums[:5])
     for i in scoredNums[:5]:
         stringNums = [str(num) for num in i["phNum"]]
         num = ""
         i["phNum"] = "1{}".format(num.join(stringNums))
 
-    print("return final ", scoredNums[:5])
+    # print("return final ", scoredNums[:5])
 
     return scoredNums[:5]
 
@@ -88,7 +88,7 @@ def get_best(vanity_nums):
 def score_orig_num(custNum):
     custNumInts = [int(i) for i in custNum]
     uniqueCustNumObj = {}
-    print(custNumInts)
+    # print(custNumInts)
     for i, num in enumerate(custNumInts):
         uniqueCustNumObj[num] = ""
     return len(custNum) - len(uniqueCustNumObj)
@@ -104,13 +104,14 @@ def handle_ani(custNum):
     try:
         print("writing to db ", writeNums)
         currentTimeMs = int(time.time())
-        uuid_id = uuid.uuid1()
+        uuid_id = str(uuid.uuid1())
         for i in range(len(writeNums)):
-            print("vanity_number: {}".format(writeNums[i]["phNum"]))
-            print("score: {}".format(writeNums[i]["score"]))
+            uuidKey = f"{uuid_id}-{i}"
+            # print("vanity_number: {}".format(writeNums[i]["phNum"]))
+            # print("score: {}".format(writeNums[i]["score"]))
             table.put_item(
                 Item={
-                    "uuid": str(uuid_id),
+                    "uuid": uuidKey,
                     "vanity_number": writeNums[i]["phNum"],
                     "score": writeNums[i]["score"],
                     "callers_num": custNum[1:],

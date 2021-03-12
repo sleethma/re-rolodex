@@ -2,12 +2,12 @@
 
 ## Overview
 
-Provides a call center that converts phone numbers to vanity numbers and saves the best 5
+Provides a call center that converts phone numbers to vanity numbers and saves the "Best" 5
 resulting vanity numbers, score, and the caller's number in a DynamoDB table.
 
 _Best_ = Greater variation of digits == harder to remember.  
- _Score_ = unique digits of original number - unique digets of vanity number.
-_algorithm_ = a random shuffle of digit phone digit order then seeded with algorithm of digit value/index.
+ _Score_ = unique digits of original number - unique digits of vanity number. Positive score represents better derived vanity number.
+_algorithm_ = a random shuffle of phone digit order then seeded with algorithm of digit value divided by index (d/i \* 100) and spread over number range 0 - 9 to derive new value.
 
 ## Usage
 
@@ -46,6 +46,8 @@ _algorithm_ = a random shuffle of digit phone digit order then seeded with algor
 
 ## Enhancements
 
-- Lexbot asking user number of cycles to run vanity number for better unique results
+- Add security cert to app
+- Lexbot asking user number of cycles to run vanity number algorithm for better unique results
+- python controller for deploy/template management
 - Use of nested stacks and contolling stack creation order (ex: bin code bucket, before lambda deployments)
 - Wrap deployment in python program to generate cloudformation parameter files.

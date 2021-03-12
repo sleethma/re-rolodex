@@ -26,9 +26,5 @@
   {
     "ParameterKey": "HashKeyElementType",
     "ParameterValue": "S"
-  },
-  {
-    "ParameterKey": "StackRegion",
-    "ParameterValue": "us-east-1"
   }
 ]

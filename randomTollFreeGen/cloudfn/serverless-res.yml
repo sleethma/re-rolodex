@@ -8,6 +8,7 @@ Parameters:
     Type: String
   TableName:
     Type: String
+    Default: rolodex
   ReadCapacityUnits:
     Type: Number
   WriteCapacityUnits:
@@ -28,9 +29,11 @@ Parameters:
   ApiGatewayHTTPMethod:
     Type: String
     Default: GET
-  StackRegion:
+  GSINAME:
     Type: String
-    Default: "us-east-1"
+    Default: rolodex-time-index
+
+    # TODO: make region always use AWS psuedo vars
 
 Resources:
   RandomTollFreeGenLambda:
@@ -76,8 +79,8 @@ Resources:
                   - logs:PutLogEvents
                 Effect: Allow
                 Resource:
-                  - !Sub arn:aws:logs:${StackRegion}:${AWS::AccountId}:log-group:/aws/lambda/${RolodexServerLambdaName}:*
-                  - !Sub arn:aws:logs:${StackRegion}:${AWS::AccountId}:log-group:/aws/lambda/${RandomTollFreeGenLambdaName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${RolodexServerLambdaName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${RandomTollFreeGenLambdaName}:*
 
                 Resource: "*"
               - Effect: Allow
@@ -86,7 +89,10 @@ Resources:
                   - dynamodb:BatchWriteItem
                   - dynamodb:PutItem
                   - dynamodb:GetItem
-                Resource: !Sub "arn:aws:dynamodb:${StackRegion}:${AWS::AccountId}:table/rolodex"
+                  - dynamodb:Query
+                Resource: 
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/rolodex"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/rolodex/index/rolodex-time-index"
 
   RolodexServerLambdaLogGroup:
     Type: AWS::Logs::LogGroup
@@ -106,7 +112,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt RolodexServerLambda.Arn
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${StackRegion}:${AWS::AccountId}:${ApiGateway}/${ApiGatewayStageName}/${ApiGatewayHTTPMethod}/${RolodexServerLambda}
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/${ApiGatewayStageName}/${ApiGatewayHTTPMethod}/${RolodexServerLambda}
 
   ApiGatewayIamRole:
     Type: AWS::IAM::Role
@@ -190,6 +196,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref TableName
           REGION: !Ref "AWS::Region"
+          GSI_NAME: !Ref GSINAME
       Timeout: !Ref Timeout
       MemorySize: "128"
 
@@ -225,10 +232,8 @@ Resources:
 
 
 Outputs:
-  StackRegion:
-    Value: !Ref "AWS::Region"
   ApiGatewayInvokeURL:
-    Value: !Sub https://${ApiGateway}.execute-api.${StackRegion}.amazonaws.com/${ApiGatewayStageName}
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}
   LambdaArn:
     Value: !GetAtt RolodexServerLambda.Arn
   RolodexServerLambda:
