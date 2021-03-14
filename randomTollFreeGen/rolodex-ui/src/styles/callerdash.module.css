@@ -1,0 +1,29 @@
+body {
+  width: auto;
+}
+
+.container {
+  width: auto;
+}
+
+.titleBar {
+  background-color: #eceff1;
+  text-align: center;
+  font-size: 2em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  border-bottom: 4px solid black;
+}
+
+.dashWidgets {
+  display: grid;
+  grid-template-columns: 0.8fr 0.2fr;
+  grid-gap: 20px;
+  width: 90%;
+  margin: 3%;
+  height: 100%;
+}
+
+.scoreWidg {
+  min-width: 10em;
+}

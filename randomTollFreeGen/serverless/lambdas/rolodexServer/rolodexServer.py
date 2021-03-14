@@ -2,26 +2,18 @@ from enum import unique
 import boto3
 import os
 import json
-import time
 import logging
 from boto3.dynamodb.conditions import Key
 import collections
 from datetime import datetime
 
-
-# dynamodb = boto3.resource("dynamodb", region_name=os.environ["REGION"])
-# table = dynamodb.Table(os.environ["TABLE_NAME"])
-
 dynamodb_client = boto3.client("dynamodb", region_name=os.environ["REGION"])
-
-# dm- https://codeburst.io/react-js-api-calls-to-aws-lambda-api-gateway-and-dealing-with-cors-89fb897eb04d for CORS
 
 
 def lambda_handler(event, context):
     print("input event: {}".format(event))
 
-    # TODO:  Handle request validation
-    print(event)
+    # TODO:  Handle request validation, implement auth
 
     return get_top_five()
 
@@ -72,11 +64,11 @@ def get_top_five():
 
     uniqueItems = collections.OrderedDict()
 
-    # TODO: mirror below in other function
-    # map to autoreduce and change to
+    # map to autoreduce and format reponse
     for item in resp["Items"]:
-        # eliminate this check if you want the last item
-        if item["callers_num"]["S"] not in uniqueItems:
+        # NOTE: @indivCallID needed as '-#' appended to uuids of same call for unique entries into GSI database (Would like a cleaner way)
+        indivCallID = item["uuid"]["S"][:-2]
+        if indivCallID not in uniqueItems:
             posixTime = int(item["timestamp"]["N"])
             item["timestamp"] = datetime.utcfromtimestamp(posixTime).strftime(
                 "%Y-%m-%d %H:%M:%S"
@@ -86,14 +78,7 @@ def get_top_five():
             item["vanity_number"] = item["vanity_number"]["S"]
             del item["partition"]
             item["callers_num"] = item["callers_num"]["S"]
-            uniqueItems[item["callers_num"]] = item
-
-    # TODO: Extention, also return score ranking in entire database
-    # sort by score
-    # resp["Items"].sort(key=lambda x: x["score"], reverse=True)
-
+            uniqueItems[item["uuid"][:-2]] = item
     respItems = list(uniqueItems.values())[:5]
     finalResp = {"data": respItems}
-    print("respItems: ", respItems)
     return make_resp("200", finalResp, None)
-    # return make_resp("200", finalResp, None)

@@ -1,11 +1,12 @@
 import React from "react"
-import Caller from "./components/Caller"
+import CallerDash from "./components/CallerDash"
+import s from './styles/app.module.css';
+
 
 function App() {
   return (
-    <div className="App">
-      <h1>Hello I'm Clean</h1>
-      <Caller/>
+    <div className={s.container}>
+      <CallerDash/>
     </div>
   );
 }

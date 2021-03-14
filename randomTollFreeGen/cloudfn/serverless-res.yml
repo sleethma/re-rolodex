@@ -1,11 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Creates lambda for calculating best random number and writing to database"
-# TODO: Take in code zip as var, split policies for least privilage
 Parameters:
-  S3Key:
-    Type: String
   Timeout:
     Type: String
+    Default: "15"
   TableName:
     Type: String
     Default: rolodex
@@ -13,8 +11,6 @@ Parameters:
     Type: Number
   WriteCapacityUnits:
     Type: Number
-  HashKeyElementName:
-    Type: String
   HashKeyElementType:
     Type: String
   CodeBucketStackName:
@@ -33,8 +29,6 @@ Parameters:
     Type: String
     Default: rolodex-time-index
 
-    # TODO: make region always use AWS psuedo vars
-
 Resources:
   RandomTollFreeGenLambda:
     Type: "AWS::Lambda::Function"
@@ -46,7 +40,7 @@ Resources:
         S3Bucket:
           Fn::ImportValue: !Sub "${CodeBucketStackName}-CodeBucketName"
         S3Key:
-          Ref: S3Key
+          Ref: "randomTollFreeGen.zip"
       Runtime: "python3.8"
       Environment:
         Variables:
@@ -160,7 +154,6 @@ Resources:
       AuthorizationType: NONE
       HttpMethod: !Ref ApiGatewayHTTPMethod
       Integration:
-        # needed?
         ConnectionType: INTERNET
         Credentials: !GetAtt ApiGatewayIamRole.Arn
         IntegrationHttpMethod: POST
@@ -168,7 +161,6 @@ Resources:
         TimeoutInMillis: 29000
         Type: AWS_PROXY
         Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RolodexServerLambda.Arn}/invocations'
-      # opname needed?
       OperationName: 'lambda'
       ResourceId: !Ref ApiGatewayResource
       RestApiId: !Ref ApiGateway
@@ -205,14 +197,14 @@ Resources:
     Properties:
       TableName: !Ref TableName
       AttributeDefinitions:
-        - AttributeName: !Ref "HashKeyElementName"
-          AttributeType: !Ref "HashKeyElementType"
+        - AttributeName: "uuid"
+          AttributeType: "S"
         - AttributeName: "partition"
-          AttributeType: S
+          AttributeType: "S"
         - AttributeName: "timestamp"
           AttributeType: "N"
       KeySchema:
-        - AttributeName: !Ref "HashKeyElementName"
+        - AttributeName: "uuid"
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref "ReadCapacityUnits"
@@ -240,5 +232,3 @@ Outputs:
     Value: !Ref RolodexServerLambda
   RandomTollFreeGenLambda:
     Value: !Ref RandomTollFreeGenLambda
-
-# TODO: dm - https://bl.ocks.org/magnetikonline/c314952045eee8e8375b82bc7ec68e88

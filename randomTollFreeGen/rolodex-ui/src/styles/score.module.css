@@ -1,0 +1,20 @@
+.container {
+  color: rgb(81, 130, 158);
+  background-color: black;
+  border-radius: 5px;
+  margin-top: 50pt;
+}
+.score {
+  font-size: 5em;
+  text-align: center;
+  background-color: #eceff1;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.avgScoreTitle {
+  color: #eceff1;
+  font-size: 3em;
+  text-align: center;
+  padding: 3%;
+}

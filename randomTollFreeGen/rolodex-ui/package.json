@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.1",
@@ -18,7 +19,7 @@
     "test": "react-scripts test",
     "deploy-dev": "aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=rolodex-ui-dev --profile sleethma",
     "upload-ui": "aws s3 sync build/ s3://rolodex-ui-dev --delete --profile sleethma",
-    "deploy-ui": "npm run build && npm run upload-ui",
+    "deploy-app": "npm run build && npm run upload-ui",
     "test-bash": "chmod +x ./test-script.sh && ./test-script.sh",
     "eject": "react-scripts eject"
   },

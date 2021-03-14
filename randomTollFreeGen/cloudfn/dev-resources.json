@@ -1,9 +1,5 @@
 [
   {
-    "ParameterKey": "S3Key",
-    "ParameterValue": "randomTollFreeGen.zip"
-  },
-  {
     "ParameterKey": "Timeout",
     "ParameterValue": "45"
   },
@@ -20,11 +16,7 @@
     "ParameterValue": "5"
   },
   {
-    "ParameterKey": "HashKeyElementName",
-    "ParameterValue": "uuid"
-  },
-  {
-    "ParameterKey": "HashKeyElementType",
-    "ParameterValue": "S"
+    "ParameterKey": "ApiGatewayStageName",
+    "ParameterValue": "dev"
   }
 ]

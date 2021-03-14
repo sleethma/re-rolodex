@@ -1,0 +1,140 @@
+{
+  "modules": [
+    {
+      "id": "df7b7726-db48-4866-8b3d-5f32bf718dfa",
+      "type": "PlayPrompt",
+      "branches": [
+        {
+          "condition": "Success",
+          "transition": "192c2b2d-6f0e-4e8c-bec1-60474c907ee3"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "Text",
+          "value": "Unfortunately we have encountered an error, please try Vanity Rol-odex services back while we make this a better place. Goodbye.",
+          "namespace": null
+        },
+        { "name": "TextToSpeechType", "value": "text" }
+      ],
+      "metadata": { "position": { "x": 400, "y": 418 }, "useDynamic": false }
+    },
+    {
+      "id": "0bd19e8b-5cd2-4b96-97af-90599193863f",
+      "type": "PlayPrompt",
+      "branches": [
+        {
+          "condition": "Success",
+          "transition": "0582f879-c331-41d3-9889-4a307c8df0f9"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "Text",
+          "value": "Welcome to the toll-free rolodex.",
+          "namespace": null
+        },
+        { "name": "TextToSpeechType", "value": "text" }
+      ],
+      "metadata": { "position": { "x": 590, "y": 17 }, "useDynamic": false }
+    },
+    {
+      "id": "7fd9fcf0-dda8-47dc-a767-8069e8ab7fa9",
+      "type": "SetLoggingBehavior",
+      "branches": [
+        {
+          "condition": "Success",
+          "transition": "8fc5f4dd-dcc0-4f08-838c-a324563b1279"
+        }
+      ],
+      "parameters": [{ "name": "LoggingBehavior", "value": "Enable" }],
+      "metadata": { "position": { "x": 157, "y": 15 } }
+    },
+    {
+      "id": "8fc5f4dd-dcc0-4f08-838c-a324563b1279",
+      "type": "SetVoice",
+      "branches": [
+        {
+          "condition": "Success",
+          "transition": "0bd19e8b-5cd2-4b96-97af-90599193863f"
+        }
+      ],
+      "parameters": [
+        { "name": "GlobalVoice", "value": "Joanna" },
+        { "name": "GlobalEngine", "value": "Standard" },
+        { "name": "SpeakingStyle", "value": "Standard" }
+      ],
+      "metadata": {
+        "position": { "x": 366, "y": 16 },
+        "overrideConsoleVoice": true,
+        "defaultVoice": "Conversational"
+      }
+    },
+    {
+      "id": "192c2b2d-6f0e-4e8c-bec1-60474c907ee3",
+      "type": "Disconnect",
+      "branches": [],
+      "parameters": [],
+      "metadata": { "position": { "x": 861, "y": 358 } }
+    },
+    {
+      "id": "0582f879-c331-41d3-9889-4a307c8df0f9",
+      "type": "InvokeExternalResource",
+      "branches": [
+        {
+          "condition": "Success",
+          "transition": "eb5ca0ed-6c79-4677-87bf-9a239809a24c"
+        },
+        {
+          "condition": "Error",
+          "transition": "df7b7726-db48-4866-8b3d-5f32bf718dfa"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "FunctionArn",
+          "value": "arn:aws:lambda:us-east-1:500573939214:function:randomTollFreeGen",
+          "namespace": null
+        },
+        { "name": "TimeLimit", "value": "3" }
+      ],
+      "metadata": {
+        "position": { "x": 133, "y": 239 },
+        "dynamicMetadata": {},
+        "useDynamic": false
+      },
+      "target": "Lambda"
+    },
+    {
+      "id": "eb5ca0ed-6c79-4677-87bf-9a239809a24c",
+      "type": "PlayPrompt",
+      "branches": [
+        {
+          "condition": "Success",
+          "transition": "192c2b2d-6f0e-4e8c-bec1-60474c907ee3"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "Text",
+          "value": "<speak> I see 3 great numbers came in for you.  The first number is  <prosody rate=\"80%\"><say-as interpret-as=\"telephone\"> $.External.vanityNum_1 </say-as></prosody>,\nThe second number is \n<prosody rate=\"80%\"><say-as interpret-as=\"telephone\"> $.External.vanityNum_2 </say-as></prosody>,\nAnd the last number is <prosody rate=\"80%\"><say-as interpret-as=\"telephone\"> $.External.vanityNum_3 </say-as></prosody>\n<break/>.\nFeel free to visit our web app to see the scores of the most recent numbers.\nThank you. \n</speak>",
+          "namespace": null
+        },
+        { "name": "TextToSpeechType", "value": "ssml" }
+      ],
+      "metadata": { "position": { "x": 401, "y": 254 }, "useDynamic": false }
+    }
+  ],
+  "version": "1",
+  "type": "contactFlow",
+  "start": "7fd9fcf0-dda8-47dc-a767-8069e8ab7fa9",
+  "metadata": {
+    "entryPointPosition": { "x": 20, "y": 16 },
+    "snapToGrid": false,
+    "name": "rolodex_demo",
+    "description": null,
+    "type": "contactFlow",
+    "status": "published",
+    "hash": "958a901f64b656fc26afb74cfc61a8f55dce73f5b3c9ddac819ef2b1b827a34e"
+  }
+}
