@@ -14,7 +14,9 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 - Set up [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) on deployment machine.
 - Bash shell (If on windows, can use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
 
-## Deploy
+## Deploy 
+
+1. Cd into the cloudfn/ directory
 
 1. Specify parameters in deploy parameters for respective target enviroments
 
