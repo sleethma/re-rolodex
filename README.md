@@ -5,24 +5,27 @@
 Provides a call center that converts phone numbers to vanity numbers and saves the "Best" 5
 resulting vanity numbers, score, and the caller's number in a DynamoDB table.
 
-_Best_ = Greater variation of digits == harder to remember.  
+_Best_ = Defined as greater variation of digits == harder to remember.  
  _Score_ = unique digits of original number - unique digits of vanity number. Positive score represents better derived vanity number.
 _algorithm_ = a random shuffle of phone digit order is then seeded with algorithm of digit value divided by index (d/i) and spread over number range 0 - 9 to derive new value.
 
 ## Prerequisites
 
 - Set up [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) on deployment machine.
-- Bash shell (If on windows, can use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+- Bash shell (If on windows, can use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
 
 ## Deploy
 
-    1.  Specify parameters in deploy parameters for respective target enviroments
+1. Specify parameters in deploy parameters for respective target enviroments
 
-    2. Use bash shell to execute `
+2. Use bash shell to execute
 
-    3.  Connect Contact-flows:
-      a.  Import the contact flow in the `call-center-flows` directory to your Connect Instance. Instructions can be found [here](https://docs.aws.amazon.com/connect/latest/adminguide/contact-flow-import-export.html).
-      b.  Add the created lambda resource "randomTollFreeGen" in the Amazon Connect panel by navigating to 'AWS Connect service > Contact flows > AWSLambda'
+3. Connect Contact-flows:
+
+   a. Import the contact flow in the `call-center-flows` directory to your Connect Instance.
+   Instructions can be found [here](https://docs.aws.amazon.com/connect/latest/adminguide/contact-flow-import-export.html).
+
+   b. Add the created lambda resource "randomTollFreeGen" in the Amazon Connect panel by navigating to 'AWS Connect service > Contact flows > AWSLambda'
 
 ### Rolodex UI
 
