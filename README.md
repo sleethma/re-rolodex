@@ -98,7 +98,7 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 ## Production/Customer Readiness
 
 - Gateway Auth mechanism: Telephone numbers are considered PII, so authorization needed. Authentication as well as current state endpoint is exposed to even the most basic DDOS attack.
-- Testing: Robust testing files needed for resources/app as well as portability so client can integrate with CI/CD
+- Testing: Robust testing files needed for resources/app as well as for portability so client can integrate with CI/CD
 - Add security cert to app, control api headers to allow access control to named hosts only, and ui responsiveness improved.
 - Echo client environment resources in terminal outputs after generated (ex: app url) for easy customer validation
 
