@@ -7,7 +7,7 @@ const getAvgScore = (callData) => {
     (accumulator, currentValue) => accumulator + parseInt(currentValue.score)
     , initialValue
 )
-    return sum/callData.length
+    return (sum/callData.length).toPrecision(3)
 }
 
 const Caller = (props) => {
