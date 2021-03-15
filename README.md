@@ -64,15 +64,10 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
      npm run deploy-dev-s3 (once complete, then below)
      npm run deploy-app
      ```
-
-### Rolodex UI
-
-- Find the app endpoint by navigating to: AWS Console > S3 > Bucket > Properties > Static Website Hosting > Endpoint
-
 ## Usage
 
 - Dial phone number configured to uploaded contact flow
-- Web app url can be found in the output section of AWS cloudformation in the generated stack name specified in config file.
+- Find the Web-App url by navigating to: AWS Console > S3 > Bucket > Properties > Static Website Hosting > Endpoint OR Cloudformation Stack Output
 ## Challenges/Learning during development
 - #### Portable Deployment:
 
@@ -85,16 +80,16 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 
   1. _Considered_ - Using scan can be efficient for returning last 5 entries into table. (Relational dbs excel for these query types) Scaning doesn't scale well in cost and performance. Using a ttl can help reduce this and mitigate this by reducing records in table to a relavent set. Considerations need to be made like:
 
-  - size fluctuations based on user load variances over time
-  - what to do with expired data. (DynamoStreams to cold storage on insert etc.)
+      - size fluctuations based on user load variances over time
+      - what to do with expired data. (DynamoStreams to cold storage on insert etc.)
 
   2. _Considered_ - Using a partition key of yyyy-mm-dd and sort key. Can pull data from subsets to avoid large calls/scans. Limitation, multiple calls "polling for data"
 
   3. **Implemented** - A table holding all calldata with generated uuid partition key on insert, with additional 'partition' attribute . GSI (Global Secondary Index) with 'partition' attr as partition key and Sort key with DateTime
 
-  - partitioning key allows for 'scatter-gather' technique to scale as data increases
-  - Sort key allows for retrieval of sorted data by posix datetime value
-  - uuid projected to GSI allows to be used as key ids in react jsx elements
+      - partitioning key allows for 'scatter-gather' technique to scale as data increases
+      - Sort key allows for retrieval of sorted data by posix datetime value
+      - uuid projected to GSI allows to be used as key ids in react jsx elements
 
 - #### React
 
