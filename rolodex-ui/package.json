@@ -17,10 +17,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "deploy-dev": "aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=rolodex-ui-dev --profile sleethma",
-    "upload-ui": "aws s3 sync build/ s3://rolodex-ui-dev --delete --profile sleethma",
+    "deploy-slab-s3": "aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=rolodex-ui-slab --profile sleethma",
+    "deploy-dev-s3": "aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=<your-bucket-name> --profile <your_profile_name>",
+    "upload-ui-slab": "aws s3 sync build/ s3://rolodex-ui-slab --delete --profile sleethma",
+    "upload-ui": "aws s3 sync build/ BucketName=<your-bucket-name>  --delete --profile <your_profile_name>",
+    "deploy-app-slab": "npm run build && npm run upload-ui-slab",
     "deploy-app": "npm run build && npm run upload-ui",
-    "test-bash": "chmod +x ./test-script.sh && ./test-script.sh",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

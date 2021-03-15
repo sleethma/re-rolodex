@@ -1,2 +1,2 @@
-# TODO: prompt user for input like profile
-aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=rolodex-ui-dev --profile sleethma
+# # TODO: prompt user for input like profile
+# aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=rolodex-ui-dev --profile sleethma

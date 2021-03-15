@@ -13,7 +13,7 @@ const CallerDash = () => {
 
     useEffect(() =>{
         const fetchData = async () => {
-        const apiURL = 'https://6ndggcns55.execute-api.us-east-1.amazonaws.com/dev/rolodexServer'
+        const apiURL = process.env.REACT_APP_GATEWAY_ENDPOINT;
         const response = await axios.get(apiURL);
         setData(response.data);
         };   

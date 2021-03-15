@@ -41,12 +41,6 @@ const useStyles = makeStyles({
 let rows = [];
 
 const genRows = (callData) =>{
-  console.log("callData print ", callData);
-  
-  callData.data.map(item =>(
-    console.log('id: ', item.uuid)
-    ))
-
   callData.data.map(item =>(
     rows.push(createData(item.uuid, item.callers_num,  item.vanity_number, item.score,item.timestamp))
     ))
@@ -57,7 +51,6 @@ export default function CustomizedTables({callData}) {
   const classes = useStyles();
 
   if(callData['data'].length !== 0){
-    console.log('Call data not 0', callData)
     genRows(callData);
   }
 

@@ -11,8 +11,6 @@ Parameters:
     Type: Number
   WriteCapacityUnits:
     Type: Number
-  HashKeyElementType:
-    Type: String
   CodeBucketStackName:
     Type: String
     Default: "code-bucket-rolodex"
@@ -39,8 +37,7 @@ Resources:
       Code:
         S3Bucket:
           Fn::ImportValue: !Sub "${CodeBucketStackName}-CodeBucketName"
-        S3Key:
-          Ref: "randomTollFreeGen.zip"
+        S3Key: "randomTollFreeGen.zip"
       Runtime: "python3.8"
       Environment:
         Variables:
@@ -182,7 +179,7 @@ Resources:
       Code:
         S3Bucket:
           Fn::ImportValue: !Sub "${CodeBucketStackName}-CodeBucketName"
-        S3Key: "rolodexServer.zip"
+        S3Key: rolodexServer.zip
       Runtime: "python3.8"
       Environment:
         Variables:

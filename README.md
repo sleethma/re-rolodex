@@ -16,18 +16,51 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 
 ## Deploy 
 
-1. Cd into the cloudfn/ directory
+1. Update deploy params:
+  
+      a. Cd into the cloudfn/ directory
 
-1. Specify parameters in deploy parameters for respective target enviroments
+      b. Open in `conf-code-bucket.json` file and specify parameters for `code-bucket` name for the code bucket in deploy target enviroment.
 
-2. Use bash shell to execute
+      - (Optional) - Specify other specifc environment var in `conf-resources.json` to meet anticipated load demands. 
 
-3. Connect Contact-flows:
+2. Use bash shell to execute deployments, specifying flags.
+    
+    a. Code Bucket -  specify two flags in order like:
+      ```bash 
+      bash deployCodeBucket.sh <create-stack OR update-stack> <awscli-profile-name>
+      ```
+    
+    b.  Resources - After verifying bucket deployed successfully, run below specifying additional flag of the verified bucket name from above.
+      ```bash
+      bash deployResources.sh <create-stack OR update-stack> <bucketname> <awscli-profile-name> 
+      ```
 
-   a. Import the contact flow in the `call-center-flows` directory to your Connect Instance.
+3. Amazon Connect Contact-flows:
+
+   a. Add the created lambda resource "randomTollFreeGen" in the Amazon Connect panel by navigating to `AWS Connect service > Contact flows > AWSLambda` in AWS Console
+   
+   b. Import the contact flow in the `call-center-flows` directory to your Connect Instance.
    Instructions can be found [here](https://docs.aws.amazon.com/connect/latest/adminguide/contact-flow-import-export.html).
 
-   b. Add the created lambda resource "randomTollFreeGen" in the Amazon Connect panel by navigating to 'AWS Connect service > Contact flows > AWSLambda'
+   c. In the Connect console, aquire a new number or repoint an existing one to the imported contact flow. 
+
+
+4. Web App:
+
+    a. In AWS CloudFormation service, open stack>randomTollFreeGen-rolodex>Outputs and copy the value for Key: `ApiGatewayInvokeURL`
+
+    b. open `package.json` and under scripts (`deploy-dev-s3` and `upload-ui`): replace `bucket-name` and aws cli `profile_name`
+
+    c. cd into directory `rolodex-ui`
+
+    d. In terminal, run:
+    ```terminal
+     bash insert-app-vars.sh <Your_ApiGatewayInvokeURL_Value>
+     npm install
+     npm run deploy-dev-s3 (once complete, then below)
+     npm run deploy-app
+     ```
 
 ### Rolodex UI
 
@@ -35,18 +68,15 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 
 ## Usage
 
-- Phone Number: 1 877-381-4096
+- Dial phone number configured to uploaded contact flow
 - Web app url can be found in the output section of AWS cloudformation in the generated stack name specified in config file.
-- url: http://rolodex-ui-dev.s3-website-us-east-1.amazonaws.com/
-
 ## Challenges/Learning during development
-
 - #### Portable Deployment:
 
   Not knowing clients environment required for portability reqs.
 
-  - _Considered_: - Considered wrapping in a python script to take in and build/run/manage deployment of resources
-  - **Implemented**: Deployment by running two shell scripts after entering parameters in config files. (Little Clunky and curious of your method!).
+  - _Considered_: - Considered wrapping in a python script to take in and build/run/manage deployment of resources from single config file
+  - **Implemented**: Deployment by running two shell scripts after entering parameters in config files. (Little Clunky and curious of alternate methods!).
 
 - #### DBs
 
@@ -69,13 +99,14 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 
 ## Production/Customer Readiness
 
-- Auth mechanism: Telephone numbers is considered PII, so authorization needed. Authentication as well as current state endpoint is exposed to even the most basic DDOS attack.
+- Gateway Auth mechanism: Telephone numbers are considered PII, so authorization needed. Authentication as well as current state endpoint is exposed to even the most basic DDOS attack.
 - Testing: Robust testing files needed for resources/app as well as portability so client can integrate with CI/CD
 - Add security cert to app, control api headers to allow access control to named hosts only, and ui responsiveness improved.
 - Echo client environment resources in terminal outputs after generated (ex: app url) for easy customer validation
 
 ## Enhancements
 
-- Lexbot asking user number of cycles to run vanity number algorithm for "better" number results (Premium feature)
-- python controller for deploy/template management and generation vs. the implemented bash
+- python controller for deploy/template management and generation vs. the implemented bash commands
 - Use of nested stacks and contolling stack creation order (ex: bin code bucket, before lambda deployments)
+- Lexbot asking user number of cycles to run vanity number algorithm for "better" number results (Premium feature)
+- On calling, offer to send link to customers phone via SMS message 
