@@ -9,6 +9,9 @@ _Best_ = Defined as greater variation of digits == harder to remember.
  _Score_ = unique digits of original number - unique digits of vanity number. Positive score represents better derived vanity number.
 _algorithm_ = a random shuffle of phone digit order is then seeded with algorithm of digit value divided by index (d/i) and spread over number range 0 - 9 to derive new value.
 
+## Archetecture Design
+![alt text](Architecture_Design.png "Re-rolodex")
+
 ## Prerequisites
 
 - Set up [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) on deployment machine.
@@ -104,9 +107,8 @@ _algorithm_ = a random shuffle of phone digit order is then seeded with algorith
 - Add security cert to app, control api headers to allow access control to named hosts only, and ui responsiveness improved.
 - Echo client environment resources in terminal outputs after generated (ex: app url) for easy customer validation
 
-## Enhancements
+## Future Enhancements
 
 - python controller for deploy/template management and generation vs. the implemented bash commands
-- Use of nested stacks and contolling stack creation order (ex: bin code bucket, before lambda deployments)
 - Lexbot asking user number of cycles to run vanity number algorithm for "better" number results (Premium feature)
 - On calling, offer to send link to customers phone via SMS message 
