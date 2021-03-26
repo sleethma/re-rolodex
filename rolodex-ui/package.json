@@ -20,7 +20,7 @@
     "deploy-slab-s3": "aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=rolodex-ui-slab --profile sleethma",
     "deploy-dev-s3": "aws cloudformation deploy --template-file ../cloudfn/app-hosting.yml --stack-name rolodex-ui --parameter-overrides BucketName=<your-bucket-name> --profile <your_profile_name>",
     "upload-ui-slab": "aws s3 sync build/ s3://rolodex-ui-slab --delete --profile sleethma",
-    "upload-ui": "aws s3 sync build/ BucketName=<your-bucket-name>  --delete --profile <your_profile_name>",
+    "upload-ui": "aws s3 sync build/ s3://<your-bucket-name>  --delete --profile <your_profile_name>",
     "deploy-app-slab": "npm run build && npm run upload-ui-slab",
     "deploy-app": "npm run build && npm run upload-ui",
     "eject": "react-scripts eject"

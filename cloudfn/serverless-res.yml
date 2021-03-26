@@ -23,9 +23,6 @@ Parameters:
   ApiGatewayHTTPMethod:
     Type: String
     Default: GET
-  GSINAME:
-    Type: String
-    Default: rolodex-time-index
 
 Resources:
   RandomTollFreeGenLambda:
@@ -82,8 +79,8 @@ Resources:
                   - dynamodb:GetItem
                   - dynamodb:Query
                 Resource: 
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/rolodex"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/rolodex/index/rolodex-time-index"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/${TableName}-time-index"
 
   RolodexServerLambdaLogGroup:
     Type: AWS::Logs::LogGroup
@@ -185,7 +182,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref TableName
           REGION: !Ref "AWS::Region"
-          GSI_NAME: !Ref GSINAME
+          GSI_NAME: !Sub ${TableName}-time-index
       Timeout: !Ref Timeout
       MemorySize: "128"
 
@@ -207,7 +204,7 @@ Resources:
         ReadCapacityUnits: !Ref "ReadCapacityUnits"
         WriteCapacityUnits: !Ref "WriteCapacityUnits"
       GlobalSecondaryIndexes:
-      - IndexName: rolodex-time-index
+      - IndexName: !Sub ${TableName}-time-index
         KeySchema:
         - AttributeName: "partition"
           KeyType: HASH
